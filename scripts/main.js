@@ -27,21 +27,46 @@ function preload()
 {
 }
 
+class StatsContainer extends Phaser.GameObjects.Container
+{
+    constructor(scene, x, y)
+    {
+        super(scene, x, y);
+
+        this.hpText = scene.add.text(0, 0);
+        this.moneyText = scene.add.text(0, 16);
+    }
+
+    preUpdate(time, delta)
+    {
+        this.hpText.setText(`Health: ${player.hp}`);
+        this.moneyText.setText(`Money: ${player.money}`);
+    }
+}
+
 class ShopContainer extends Phaser.GameObjects.Container
 {
     constructor(scene, x, y)
     {
         super(scene, x, y);
+
+        this.add(scene.add.text(0, 0, "Shop"));
+        this.add(new ShopButton(scene, this, 32, 32, "basic"));
+        this.add(new ShopButton(scene, this, 32, 80, "super"));
+        this.add(new ShopButton(scene, this, 32, 128, "mega"));
+        this.add(new ShopButton(scene, this, 32, 176, "ultra"));
+        this.add(new ShopButton(scene, this, 32, 224, "golder"));
     }
 }
 
 class ShopButton extends Phaser.GameObjects.Image
 {
-    constructor(scene, x, y, item)
+    constructor(scene, parent, x, y, item)
     {
         super(scene, x, y, item);
 
         this.name = item;
+        this.parent = parent;
         this.selected = false;
 
         this.setOrigin(0);
@@ -175,26 +200,12 @@ function create()
     const gameHeight = game.config.height;
     const playableWidth = game.config.width - SIDEBAR_WIDTH;
     const sidebar = this.add.container(playableWidth + 16, 0);
-    const statsContainer = this.add.container(0, gameHeight - 64);
-    const shopContainer = this.add.container(0, gameHeight * 0.25);
+    const statsContainer = new StatsContainer(this, 0, gameHeight - 64);
+    const shopContainer = new ShopContainer(this, 0, gameHeight * 0.25);
     const graphics = this.add.graphics().lineStyle(3, 0xffffff, 1);
 
     sidebar.add(statsContainer);
     sidebar.add(shopContainer);
-
-    shopContainer.add(this.add.text(0, 0, "Shop"));
-    shopContainer.add(new ShopButton(this, 32, 32, "basic"));
-    shopContainer.add(new ShopButton(this, 32, 80, "super"));
-    shopContainer.add(new ShopButton(this, 32, 128, "mega"));
-    shopContainer.add(new ShopButton(this, 32, 176, "ultra"));
-    shopContainer.add(new ShopButton(this, 32, 224, "golder"));
-
-    // x and y relative to container
-    hpText = this.add.text(0, 0);
-    moneyText = this.add.text(0, 16);
-
-    statsContainer.add(hpText);
-    statsContainer.add(moneyText);
 
     path = this.add.path(96, -32);
     path.lineTo(96, 164);
@@ -254,8 +265,7 @@ function create()
 
 function update(time, delta)
 {
-    hpText.setText(`Health: ${player.hp}`);
-    moneyText.setText(`Money: ${player.money}`);
+
 
     if (time > this.nextEnemy)
     {
