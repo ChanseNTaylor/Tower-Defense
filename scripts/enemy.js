@@ -28,7 +28,8 @@ class Enemy extends Phaser.GameObjects.Image
             this.setActive(false);
             this.setVisible(false);
 
-            player.money += 25;
+            player.incrementKills();
+            player.increaseMoneyBy(25)
         }
     }
 

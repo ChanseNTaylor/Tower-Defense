@@ -27,6 +27,49 @@ function preload()
 {
 }
 
+class ShopContainer extends Phaser.GameObjects.Container
+{
+    constructor(scene, x, y)
+    {
+        super(scene, x, y);
+    }
+}
+
+class ShopButton extends Phaser.GameObjects.Image
+{
+    constructor(scene, x, y, item)
+    {
+        super(scene, x, y, item);
+
+        this.name = item;
+        this.selected = false;
+
+        this.setOrigin(0);
+        this.setInteractive();
+
+        this.on("pointerout", () => { this.clearTint(); });
+        this.on("pointerover", () =>
+        {
+            if(!this.selected)
+            {
+                this.setTint(0xff0000);
+            }
+        });
+        this.on("pointerdown", () =>
+        {
+            if(!this.selected)
+            {
+                this.selected = true;
+            }
+            else
+            {
+                this.selected = false;
+                player.setSelectedTower();
+            }
+        });
+    }
+}
+
 class Turret extends Phaser.GameObjects.Image
 {
     constructor(scene, x, y)
@@ -131,7 +174,27 @@ function create()
     let pathPoints;
     const gameHeight = game.config.height;
     const playableWidth = game.config.width - SIDEBAR_WIDTH;
+    const sidebar = this.add.container(playableWidth + 16, 0);
+    const statsContainer = this.add.container(0, gameHeight - 64);
+    const shopContainer = this.add.container(0, gameHeight * 0.25);
     const graphics = this.add.graphics().lineStyle(3, 0xffffff, 1);
+
+    sidebar.add(statsContainer);
+    sidebar.add(shopContainer);
+
+    shopContainer.add(this.add.text(0, 0, "Shop"));
+    shopContainer.add(new ShopButton(this, 32, 32, "basic"));
+    shopContainer.add(new ShopButton(this, 32, 80, "super"));
+    shopContainer.add(new ShopButton(this, 32, 128, "mega"));
+    shopContainer.add(new ShopButton(this, 32, 176, "ultra"));
+    shopContainer.add(new ShopButton(this, 32, 224, "golder"));
+
+    // x and y relative to container
+    hpText = this.add.text(0, 0);
+    moneyText = this.add.text(0, 16);
+
+    statsContainer.add(hpText);
+    statsContainer.add(moneyText);
 
     path = this.add.path(96, -32);
     path.lineTo(96, 164);
@@ -187,9 +250,6 @@ function create()
     });
 
     this.physics.add.overlap(enemies, bullets, damageEnemy);
-
-    hpText = this.add.text(playableWidth + 16, gameHeight - 64);
-    moneyText = this.add.text(playableWidth + 16, gameHeight - 40);
 }
 
 function update(time, delta)
