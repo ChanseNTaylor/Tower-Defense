@@ -2,7 +2,9 @@ class Enemy extends Phaser.GameObjects.Image
 {
     constructor(scene)
     {
-        super(scene, 0, 0, "sprites");
+        super(scene, 0, 0, "enemy");
+
+        this.setDisplaySize(32, 32);
 
         this.hp = 100;
         this.speed = 1/10000;

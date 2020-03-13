@@ -4,9 +4,7 @@ let tiles;
 let enemies;
 let turrets;
 let bullets;
-
-let hpText;
-let moneyText;
+let sidebar;
 
 const player = new Player();
 
@@ -25,173 +23,11 @@ const game = new Phaser.Game(
 
 function preload()
 {
-}
-
-class StatsContainer extends Phaser.GameObjects.Container
-{
-    constructor(scene, x, y)
-    {
-        super(scene, x, y);
-
-        this.hpText = scene.add.text(0, 0);
-        this.moneyText = scene.add.text(0, 16);
-    }
-
-    preUpdate(time, delta)
-    {
-        this.hpText.setText(`Health: ${player.hp}`);
-        this.moneyText.setText(`Money: ${player.money}`);
-    }
-}
-
-class ShopContainer extends Phaser.GameObjects.Container
-{
-    constructor(scene, x, y)
-    {
-        super(scene, x, y);
-
-        this.add(scene.add.text(0, 0, "Shop"));
-        this.add(new ShopButton(scene, this, 32, 32, "basic"));
-        this.add(new ShopButton(scene, this, 32, 80, "super"));
-        this.add(new ShopButton(scene, this, 32, 128, "mega"));
-        this.add(new ShopButton(scene, this, 32, 176, "ultra"));
-        this.add(new ShopButton(scene, this, 32, 224, "golder"));
-    }
-}
-
-class ShopButton extends Phaser.GameObjects.Image
-{
-    constructor(scene, parent, x, y, item)
-    {
-        super(scene, x, y, item);
-
-        this.name = item;
-        this.parent = parent;
-        this.selected = false;
-
-        this.setOrigin(0);
-        this.setInteractive();
-
-        this.on("pointerout", () => { this.clearTint(); });
-        this.on("pointerover", () =>
-        {
-            if(!this.selected)
-            {
-                this.setTint(0xff0000);
-            }
-        });
-        this.on("pointerdown", () =>
-        {
-            if(!this.selected)
-            {
-                this.selected = true;
-            }
-            else
-            {
-                this.selected = false;
-                player.setSelectedTower();
-            }
-        });
-    }
-}
-
-class Turret extends Phaser.GameObjects.Image
-{
-    constructor(scene, x, y)
-    {
-        super(scene, x, y, "sprites");
-
-        this.cost = 100;
-        this.nextTic = 0;
-
-        this.setOrigin(-.5);
-    }
-
-    addBullet(x, y, angle)
-    {
-        const bullet = bullets.get();
-
-        if(bullet)
-        {
-            bullet.fire(x, y, angle);
-        }
-    }
-
-    getEnemy(x, y, distance)
-    {
-        const enemyUnits = enemies.getChildren();
-
-        for(let i = 0; i < enemyUnits.length; i++)
-        {
-            if(enemyUnits[i].active && Phaser.Math.Distance.Between(x, y, enemyUnits[i].x, enemyUnits[i].y) <= distance)
-            {
-                return enemyUnits[i];
-            }
-        }
-        return false;
-    }
-
-    fire()
-    {
-        const enemy = this.getEnemy(this.x, this.y, 100);
-
-        if(enemy)
-        {
-            const angle = Phaser.Math.Angle.Between(this.x, this.y, enemy.x, enemy.y);
-
-            this.addBullet(this.x, this.y, angle);
-        }
-    }
-
-    update(time, delta)
-    {
-        if(time > this.nextTic)
-        {
-            this.fire();
-            this.nextTic = time + 1000;
-        }
-    }
-}
-
-class Bullet extends Phaser.GameObjects.Image
-{
-    constructor(scene, x, y)
-    {
-        super(scene, x, y, "bullet");
-
-        this.dx = 0;
-        this.dy = 0;
-        this.lifespan = 0;
-        this.speed = Phaser.Math.GetSpeed(600, 1);
-
-        this.setOrigin(-0.5);
-    }
-
-    fire(x, y, angle)
-    {
-        this.setActive(true);
-        this.setVisible(true);
-        this.setPosition(x, y);
-
-        this.dx = Math.cos(angle);
-        this.dy = Math.sin(angle);
-
-        this.lifespan = 300;
-    }
-
-    update(time, delta)
-    {
-        this.lifespan -= delta;
-
-        this.x += this.dx * (this.speed * delta);
-        this.y += this.dy * (this.speed * delta);
-
-        if(this.lifespan <= 0)
-        {
-            this.setActive(false);
-            this.setVisible(false);
-        }
-    }
+    this.load.image("enemy", "images/enemy.png");
+    this.load.image("cannon", "images/cannon.png");
+    this.load.image("enemyTile", "images/enemytile.png");
+    this.load.image("playerTile", "images/playertile.png");
+    this.load.image("shopcannon", "images/shopcannon.png");
 }
 
 function create()
@@ -199,13 +35,9 @@ function create()
     let pathPoints;
     const gameHeight = game.config.height;
     const playableWidth = game.config.width - SIDEBAR_WIDTH;
-    const sidebar = this.add.container(playableWidth + 16, 0);
-    const statsContainer = new StatsContainer(this, 0, gameHeight - 64);
-    const shopContainer = new ShopContainer(this, 0, gameHeight * 0.25);
     const graphics = this.add.graphics().lineStyle(3, 0xffffff, 1);
 
-    sidebar.add(statsContainer);
-    sidebar.add(shopContainer);
+    sidebar = this.add.existing(new Sidebar(this, playableWidth + 16, 0));
 
     path = this.add.path(96, -32);
     path.lineTo(96, 164);
@@ -245,7 +77,6 @@ function create()
 
     this.nextEnemy = 0;
 
-    // add the tiles group too!
     turrets = this.add.group({ classType: Turret, runChildUpdate: true });
 
     enemies = this.physics.add.group(
@@ -265,7 +96,7 @@ function create()
 
 function update(time, delta)
 {
-
+    sidebar.update();
 
     if (time > this.nextEnemy)
     {

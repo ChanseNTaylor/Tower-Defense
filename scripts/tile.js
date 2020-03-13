@@ -4,16 +4,15 @@ class Tile extends Phaser.GameObjects.Image
     {
         if(type == "player")
         {
-            super(scene, x, y, "playertile");
+            super(scene, x, y, "playerTile");
         }
         else
         {
-            super(scene, x, y, "enemytile");
+            super(scene, x, y, "enemyTile");
         }
 
-        this.setScale(2);
         this.setOrigin(0);
-        this.setDepth(-1);
+        this.setDisplaySize(64, 64);
     }
 }
 
@@ -34,10 +33,10 @@ class PlayerTile extends Tile
             {
                 const turret = new Turret(scene);
 
-                // hovering tiles shows red when you don't have enough money
                 if(player.money - turret.cost >= 0)
                 {
-                    this.setTint(0xff00ff);
+                    // doesn't look good. may need sprite for mouseover...
+                    this.setTint(0xaaaaaa);
                 }
                 else
                 {
@@ -48,33 +47,36 @@ class PlayerTile extends Tile
 
         this.on("pointerdown", () =>
         {
-            if(this.occupied == false)
+            if(player.getSelectedTower() !== undefined)
             {
-                let turret = new Turret(scene);
-
-                if(player.money - turret.cost >= 0)
+                if(this.occupied == false)
                 {
-                    turret = turrets.get();
+                    let turret = new Turret(scene);
 
-                    player.money -= turret.cost;
-
-                    if(turret)
+                    if(player.money - turret.cost >= 0)
                     {
-                        turret.setActive(true);
-                        turret.setVisible(true);
-                        turret.setPosition(this.x, this.y);
-                    }
+                        turret = turrets.get();
 
-                    if(this.isTinted)
+                        player.money -= turret.cost;
+
+                        if(turret)
+                        {
+                            turret.setActive(true);
+                            turret.setVisible(true);
+                            turret.setPosition(this.x, this.y);
+                        }
+
+                        if(this.isTinted)
+                        {
+                            this.clearTint();
+                        }
+
+                        this.occupied = true;
+                    }
+                    else
                     {
-                        this.clearTint();
+                        console.log("Not Enough Money!");
                     }
-
-                    this.occupied = true;
-                }
-                else
-                {
-                    console.log("Not Enough Money!");
                 }
             }
         });
