@@ -47,7 +47,7 @@ class PlayerTile extends Tile
 
         this.on("pointerdown", () =>
         {
-            if(player.getSelectedTower() !== undefined)
+            if(player.getSelectedTower() != undefined)
             {
                 if(this.occupied == false)
                 {

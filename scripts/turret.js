@@ -1,20 +1,37 @@
 "use strict";
 class Turret extends Phaser.GameObjects.Image
 {
-    constructor(scene, x, y)
+    constructor(scene, x, y, name)
     {
-        super(scene, x, y, "cannon");
+        super(scene, x, y, name);
 
-        this.name = "e";
         this.cost = 100;
         this.nextTic = 0;
+        this.radius = 100;
         this.sellPrice = this.cost / 2;
+
+        this.radiusGraphics = scene.add.graphics(
+        {
+            fillStyle: { color: 0xbbbbbb, alpha: 0.5 },
+            lineStyle: { width: 1, color: 0xbbbbbb, alpha: 0.8 }
+        });
 
         this.setOrigin(-.5);
         this.setInteractive();
         this.setDisplaySize(32, 32);
 
-        this.on("pointerover", () => { console.log(this.name) })
+        // make a method to toggle the circle?
+        this.on("pointerover", () =>
+        {
+            const x = this.x + 32;
+            const y = this.y + 32;
+            const circle = new Phaser.Geom.Circle(x, y, this.radius);
+
+            this.radiusGraphics.fillCircleShape(circle);
+            this.radiusGraphics.strokeCircleShape(circle);
+        });
+
+        this.on("pointerout", () => this.radiusGraphics.clear());
     }
 
     addBullet(x, y, angle)
@@ -43,7 +60,7 @@ class Turret extends Phaser.GameObjects.Image
 
     fire()
     {
-        const enemy = this.getEnemy(this.x, this.y, 100);
+        const enemy = this.getEnemy(this.x + 32, this.y + 32, this.radius);
 
         if(enemy)
         {
@@ -60,6 +77,37 @@ class Turret extends Phaser.GameObjects.Image
             this.fire();
             this.nextTic = time + 1000;
         }
+    }
+}
+
+class CannonTurret extends Turret
+{
+    constructor(scene, x, y)
+    {
+        super(scene, x, y, "cannon");
+
+        this.cost = 150;
+        this.nextTic = 0;
+        this.radius = 100;
+        this.name = "cannon";
+        this.sellPrice = this.cost / 2;
+
+        this.setTexture(this.name);
+
+        this.setOrigin(-.5);
+        this.setInteractive();
+        this.setDisplaySize(32, 32);
+
+        console.log(this)
+
+        this.setActive(true)
+    }
+}
+
+class RocketTurret extends Turret
+{
+    constructor(scene, x, y)
+    {
     }
 }
 

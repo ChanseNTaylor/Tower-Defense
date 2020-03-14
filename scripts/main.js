@@ -25,9 +25,11 @@ function preload()
 {
     this.load.image("enemy", "images/enemy.png");
     this.load.image("cannon", "images/cannon.png");
+    this.load.image("rocket", "images/rocket.png");
     this.load.image("enemyTile", "images/enemytile.png");
     this.load.image("playerTile", "images/playertile.png");
     this.load.image("shopcannon", "images/shopcannon.png");
+    this.load.image("shoprocket", "images/shoprocket.png");
 }
 
 function create()
@@ -77,7 +79,7 @@ function create()
 
     this.nextEnemy = 0;
 
-    turrets = this.add.group({ classType: Turret, runChildUpdate: true });
+    turrets = this.add.group({ classType: CannonTurret, runChildUpdate: true });
 
     enemies = this.physics.add.group(
     {

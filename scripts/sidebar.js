@@ -111,6 +111,7 @@ class ShopButton extends Phaser.GameObjects.Image
             {
                 this.selected = false;
                 player.setSelectedTower();
+                this.setTint(0xaaaaaa);
             }
         });
     }
