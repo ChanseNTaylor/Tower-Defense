@@ -100,7 +100,7 @@ function update(time, delta)
 {
     sidebar.update();
 
-    if (time > this.nextEnemy)
+    if(time > this.nextEnemy)
     {
         const enemy = enemies.get();
 
