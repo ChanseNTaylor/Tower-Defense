@@ -16,15 +16,13 @@ class Turret extends Phaser.GameObjects.Image
             lineStyle: { width: 1, color: 0xbbbbbb, alpha: 0.8 }
         });
 
-        this.setOrigin(-.5);
         this.setInteractive();
-        this.setDisplaySize(32, 32);
 
-        // make a method to toggle the circle?
+        // make method to toggle the circle
         this.on("pointerover", () =>
         {
-            const x = this.x + 32;
-            const y = this.y + 32;
+            const x = this.x;
+            const y = this.y;
             const circle = new Phaser.Geom.Circle(x, y, this.radius);
 
             this.radiusGraphics.fillCircleShape(circle);
@@ -50,9 +48,14 @@ class Turret extends Phaser.GameObjects.Image
 
         for(let i = 0; i < enemyUnits.length; i++)
         {
-            if(enemyUnits[i].active && Phaser.Math.Distance.Between(x, y, enemyUnits[i].x, enemyUnits[i].y) <= distance)
+            if(enemyUnits[i].active)
             {
-                return enemyUnits[i];
+                const thing = Phaser.Math.Distance.Between(x, y, enemyUnits[i].x, enemyUnits[i].y);
+
+                if(thing <= this.radius)
+                {
+                    return enemyUnits[i];
+                }
             }
         }
         return false;
@@ -60,11 +63,11 @@ class Turret extends Phaser.GameObjects.Image
 
     fire()
     {
-        const enemy = this.getEnemy(this.x + 32, this.y + 32, this.radius);
+        const enemy = this.getEnemy(this.x, this.y, this.radius);
 
         if(enemy)
         {
-            const angle = Phaser.Math.Angle.Between(this.x, this.y, enemy.x, enemy.y);
+            let angle = Phaser.Math.Angle.Between(this.x, this.y, enemy.x, enemy.y);
 
             this.addBullet(this.x, this.y, angle);
         }
@@ -88,19 +91,15 @@ class CannonTurret extends Turret
 
         this.cost = 150;
         this.nextTic = 0;
-        this.radius = 100;
+        this.radius = 125;
         this.name = "cannon";
         this.sellPrice = this.cost / 2;
 
         this.setTexture(this.name);
 
-        this.setOrigin(-.5);
         this.setInteractive();
-        this.setDisplaySize(32, 32);
 
-        console.log(this)
-
-        this.setActive(true)
+        this.setActive(true);
     }
 }
 
@@ -121,8 +120,6 @@ class Bullet extends Phaser.GameObjects.Image
         this.dy = 0;
         this.lifespan = 0;
         this.speed = Phaser.Math.GetSpeed(600, 1);
-
-        this.setOrigin(-0.5);
     }
 
     fire(x, y, angle)

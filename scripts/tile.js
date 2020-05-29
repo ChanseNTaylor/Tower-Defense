@@ -1,3 +1,4 @@
+"use strict";
 class Tile extends Phaser.GameObjects.Image
 {
     constructor(scene, x, y, type)
@@ -26,7 +27,7 @@ class PlayerTile extends Tile
 
         this.setInteractive();
 
-        this.on("pointerout", () => this.clearTint());
+        this.on("pointerout", () => { this.clearTint(); });
         this.on("pointerover", () =>
         {
             if(this.occupied == false)
@@ -55,7 +56,7 @@ class PlayerTile extends Tile
 
                     if(player.money - turret.cost >= 0)
                     {
-                        turret = turrets.get();
+                        turret = turrets.get(this.x + 32, this.y + 32);
 
                         player.money -= turret.cost;
 
@@ -63,7 +64,6 @@ class PlayerTile extends Tile
                         {
                             turret.setActive(true);
                             turret.setVisible(true);
-                            turret.setPosition(this.x, this.y);
                         }
 
                         if(this.isTinted)

@@ -24,6 +24,7 @@ const game = new Phaser.Game(
 function preload()
 {
     this.load.image("enemy", "images/enemy.png");
+    this.load.image("bullet", "images/bullet.png");
     this.load.image("cannon", "images/cannon.png");
     this.load.image("rocket", "images/rocket.png");
     this.load.image("enemyTile", "images/enemytile.png");
@@ -79,7 +80,11 @@ function create()
 
     this.nextEnemy = 0;
 
-    turrets = this.add.group({ classType: CannonTurret, runChildUpdate: true });
+    turrets = this.add.group(
+    { 
+        classType: CannonTurret,
+        runChildUpdate: true 
+    });
 
     enemies = this.physics.add.group(
     {
